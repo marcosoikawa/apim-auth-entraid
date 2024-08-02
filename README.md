@@ -17,7 +17,8 @@ Tags: Azure, EntraID, API Management
 
 ## Scenario
 
-The main objective of this LAB is do demonstrate the API Management centralized authentication and authotization of APIs, using APIM Policy (<validate-jwt>), App Roles of Entra ID
+The main objective of this LAB is do demonstrate the API Management centralized authentication and authotization of APIs, using APIM Policy (validate-jwt), App Roles of Entra ID
+![Topology](./media/architecture1.png)
 
 # Prerequisites
 
