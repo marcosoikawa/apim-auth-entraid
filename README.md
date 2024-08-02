@@ -133,7 +133,8 @@ In this sample, we will consider that Members can list the sessions, but not lis
 1. In Azure Portal, go to API Management, click on instance created.
 1. In the left panel, go to API, click on API imported, GetSessions operation. In Inbound policy, click on **+ Add policy**.
 ![Enterprise Pane](./media/apim3.png)
-1. Select "Validade JWT" Policy
+1. Select "Validade JWT" Policy.
+
 ![Enterprise Pane](./media/apim4.png)
 1. Fill the values with values of application, described in the table:
 
@@ -142,11 +143,11 @@ In this sample, we will consider that Members can list the sessions, but not lis
 |**Header name**|Authorization|
 |**Failed validation HTTP code**| Leave with 401 - Unauthorized|
 |**Failed validation error message**| Unauthorized due APIM Policy |
-|**Audiences**|**api://[your-app-id]**|
-|**Required claims - Name**|**roles**|
-|**Required claims - Match**|**Any claim**|
-|**Required claims - Value**|**APIMAuth.Members**|
-|**Open ID URLs** |**"https://login.microsoftonline.com/[your-tenant-id]/v2.0/.well-known/openid-configuration"**|
+|**Audiences**|api://[your-app-id]|
+|**Required claims - Name**|roles|
+|**Required claims - Match**|Any claim|
+|**Required claims - Value**|APIMAuth.Members|
+|**Open ID URLs** |https://login.microsoftonline.com/[your-tenant-id]/v2.0/.well-known/openid-configuration|
 
 1. Click Save.
 
@@ -165,6 +166,9 @@ Final result will be something smimilar to this:
 
 2. Repeat the process with GetSpeakers, using **APIMAuth.Admins** Role.
 
+
+## Run and Test
+For better understand 
 
 
 ## Next steps
