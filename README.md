@@ -159,6 +159,8 @@ In this sample, we will consider that Members can list the sessions, but not lis
         <issuer>https://sts.windows.net/[your-tenant-id]/</issuer>
     </issuers>
 ```
+Final result will be something smimilar to this:
+![Enterprise Pane](./media/apim5.png)
 
 
 2. Repeat the process with GetSpeakers, using **APIMAuth.Admins** Role.
