@@ -61,7 +61,7 @@ For this demo, we will use Confere API (https://conferenceapi.azurewebsites.net)
 1. You can set API values during creation or later by going to the Settings tab.
 
 
-![Topology](./media/architecture1.png)
+![Topology](./media/apim2.png)
 
 |Setting|Value|
 |-------|-----|
