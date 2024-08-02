@@ -5,7 +5,7 @@ Platform: Windows
 Tags: Azure, EntraID, API Management
 ---
 
-# API Authentication with API Management (APIM) and Entra ID using Polcies 
+# API Authentication with API Management (APIM) and Entra ID using APIM Policies 
 
 ![GitHub](https://img.shields.io/github/license/marcosoikawa/apim-auth-entraid) 
 ![GitHub repo size](https://img.shields.io/github/repo-size/marcosoikawa/apim-auth-entraid) 
@@ -24,7 +24,8 @@ The main objective of this LAB is to demonstrate how Azure API Management (APIM)
 
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
 
-## Create Environment
+## Create APIM Environment
+Open Azure Portal and click on Cloud Shell to run this scripts to Create API Management
 
 Variable block
 ```bash
@@ -46,6 +47,30 @@ az apim create --name $apim --resource-group $resourceGroup \
   --publisher-name Contoso --publisher-email admin@contoso.com \
   --no-wait
 ```
+
+## Import an API in APIM
+For this demo, we will use Confere API (https://conferenceapi.azurewebsites.net), a backend API for demos proposed, provided by Microsoft. Use this guide [Tutorial: Import and publish your first API](https://learn.microsoft.com/en-us/azure/api-management/import-and-publish) for more details if need to import API to your API Management.
+
+
+1. In the Azure portal, search for and select API Management services.
+1. On the API Management services page, select your API Management instance.
+1. In the left navigation of your API Management instance, select APIs.
+1. Select the OpenAPI tile.
+1. In the Create from OpenAPI specification window, select Full.
+1. Enter the values from the following table.
+1. You can set API values during creation or later by going to the Settings tab.
+
+
+![Topology](./media/architecture1.png)
+
+|Setting|Value|
+|-------|-----|
+|**OpenAPI specification**|*https:\//conferenceapi.azurewebsites.net?format=json*|
+|**Display name**|After you enter the OpenAPI specification URL, API Management fills out this field based on the JSON.|
+|**Name**|After you enter the OpenAPI specification URL, API Management fills out this field based on the JSON.|
+|**Products**|**Unlimited**|
+|**Gateways**|**Managed**|
+
 
 ## Register the SPA App
 
