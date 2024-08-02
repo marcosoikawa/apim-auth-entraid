@@ -85,6 +85,27 @@ For this demo, we will use Confere API (https://conferenceapi.azurewebsites.net)
     1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
     1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
 
+## Create App Roles
+[App Roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-app-roles-to-applications) is the core of RBAC for APIs. We will create two App Roles, one representing "Member Access", and other one representing "Admin" access.
+
+1. Still on the same app registration, select the **App Roles** blade to the left.
+1. Select **Create app role**:
+    1. For **Display name**, enter a suitable name for your application permission, for instance **APIMAuth.Members**.
+    1. For **Allowed member types**, choose **Both (Users/Groups + Applications)** 
+    1. For **Value**, enter **APIMAuth.Members** (case-sensitive).
+    1. For **Description**, enter **Allow users to access members permissions of API, whicth is Can list only sessions**.
+    1. Select **Apply** to save your changes.
+    > Repeat the steps above for another app permission named **APIMAuth.Admins**, changing description to **Allow users to access admin permissions of API, whicth is can list all sessions and speakers**
+
+## Giving users permissions
+Next, we will assign users to preview created App Roles.
+1. Still on App Registration pane, on overview, click on "Managed application in local directory", to go to The Enterprise Application pane.
+![Enterprise Pane](./media/approles1.png)
+1. In the Enterprise Pane, go to **Users and groups**, **+ Add user/group**, select a user and select just APIM.Members App Role. Click on Select, and then Assign.
+1. Do the seme for another user, including this time, the APIM.Admins and APIM.Members App Role. The configuration will be something similar to this:
+![Enterprise Pane](./media/approles2.png)
+In this example, Marcos will have the "Admin" role, and Gabriel will have "Member" role.
+
 ##### Publish Delegated Permissions
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
