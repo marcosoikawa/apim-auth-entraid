@@ -29,9 +29,13 @@ Open Azure Portal and click on Cloud Shell to run this scripts to Create API Man
 
 Variable block
 ```bash
-let "randomIdentifier=$RANDOM"
 resourceGroup="apim-auth"
-apim="apim-auth-$randomIdentifier"
+ident=$(az account show --query id --output tsv)
+ident+=$(echo $resourceGroup)
+randomIdentifier=$(echo $ident | md5sum | cut -c 1-7)
+apim="$resourceGroup-$randomIdentifier"
+
+
 ```
 
 Create Resource Group
@@ -44,7 +48,7 @@ az group create \
 Ceate an API Management
 ```bash
 az apim create --name $apim --resource-group $resourceGroup \
-  --publisher-name Contoso --publisher-email admin@contoso.com \
+  --publisher-name Contoso --sku-name Developer --publisher-email admin@contoso.com \
   --no-wait
 ```
 
@@ -55,9 +59,10 @@ For this demo, we will use Confere API (https://conferenceapi.azurewebsites.net)
 1. In the Azure portal, search for and select API Management services.
 1. On the API Management services page, select your API Management instance.
 1. In the left navigation of your API Management instance, select APIs.
-1. Select the OpenAPI tile.
+1. Select the **OpenAPI** tile.
 1. In the Create from OpenAPI specification window, select Full.
 1. Enter the values from the following table.
+1. Click Save
 1. You can set API values during creation or later by going to the Settings tab.
 
 
@@ -73,70 +78,105 @@ For this demo, we will use Confere API (https://conferenceapi.azurewebsites.net)
 
 
 
-## Register the SPA App
+## Register the API App
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
+### Create the API entity on Microsoft Entra ID
+
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Microsoft Entra ID** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `apim-auth`.
-    1. Under **Supported account types**, select **Accounts in this organizational directory only**
-    1. Select **Register** to create the application.
-1. In the **Overview** blade, find and note the **Application (client) ID**. keep this value for future use.
-1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
-    1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
-    1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
 
-##### Publish Delegated Permissions
+|Setting|Value|
+|-------|-----|
+|Name|apim-auth-api|
+|Supported account types|Accounts in this organizational directory only|
 
-1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
+Select **Register** to create the application.
+
+In the **Overview** blade, find and note the **Application (client) ID** and  **Directory (tenant) ID**. Keep these values for future use.
+
+
+### Expose the  API and Publish Delegated Permissions
+
+In the left menu, in Manage section, select the **Expose an API** blade
+
+>This the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. 
+
+Declare an resource URI(Application ID URI), follow the following steps:
+
+1. Select **Add** next to the **Application ID URI** to generate a URI that is unique for this app.     
+1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
+
+#### Publish Delegated Permissions
+In the same page, add a scope to you App Registration. 
+
+>All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token for a *user* successfully. 
+
+To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, enter **APIMAuth.Read** (case-sensitive).
-    1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app apim-auth to read data`.
-    1. For **Admin consent description** type in the details `e.g. Allows the app apim-auth to read the signed-in users data.`
-    1. For **User consent display name** type in the details `e.g. Read data items as yourself`.
-    1. For **User consent description** type in the details `e.g. Allow the app apim-auth to read data on your behalf.`
-    1. Keep **State** as **Enabled**.
-    1. Select the **Add scope** button on the bottom to save this scope.
-    > Repeat the steps above for another scope named **APIMAuth.ReadWrite**
-1. Select the **Manifest** blade on the left.
-    1. Set `accessTokenAcceptedVersion` property to **2**.
-    1. Select on **Save**.
 
-> :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+|Setting|Value|Comment|
+|-------|-----|---|
+|Scope name|APIMAuth.Read|(case-sensitive)|
+|Who can consent?|Admins and users||
+|Admin consent display name|Allow the admins of the app apim-auth to read data||
+|Admin consent description|Allows the admins to read the signed-in users data||
+|User consent display name|Allow Users to read data items as yourself||
+|User consent description|Allow the users to read data on your behalf||
+|State|Enabled||
 
 ## Create App Roles
-[App Roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-app-roles-to-applications) is the core of RBAC for APIs. We will create two App Roles, one representing "Member Access", and other one representing "Admin" access.
+[App Roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-app-roles-to-applications) is the core of RBAC for APIs. 
+We will create two App Roles, one representing "Member Access", and other one representing "Admin" access.
 
+#### Create the App Role: APIMAuth.Members
 1. Still on the same app registration, select the **App Roles** blade to the left.
-1. Select **Create app role**:
-    1. For **Display name**, enter a suitable name for your application permission, for instance **APIMAuth.Members**.
-    1. For **Allowed member types**, choose **Both (Users/Groups + Applications)** 
-    1. For **Value**, enter **APIMAuth.Members** (case-sensitive).
-    1. For **Description**, enter **Allow users to access members permissions of API, whicth is Can list only sessions**.
-    1. Select **Apply** to save your changes.
-    > Repeat the steps above for another app permission named **APIMAuth.Admins**, changing description to **Allow users to access admin permissions of API, whicth is can list all sessions and speakers**
+1. Select **Create app role**. Create a App Role with the folowing values:
+
+|Setting|Value|
+|-------|-----|
+|Display name|APIMAuth.Members|
+|Allowed member types|Both (Users/Groups + Applications)|
+|Value|APIMAuth.Members|
+|Description|Allow users to access members permissions of API, whitch is: Can list only sessions|
+|Do you want to enable this app role?|checked|
+
+3. Select **Apply** to save your changes.
+
+#### Create the App Role: APIMAuth.Admins
+
+Repeat the steps above for another app permission named **APIMAuth.Admins**
+
+|Setting|Value|
+|-------|-----|
+|Display name|APIMAuth.Admins|
+|Allowed member types|Both (Users/Groups + Applications)|
+|Value|APIMAuth.Admins|
+|Description|Allow users to access admin permissions of API, whicth is can list all sessions and speakers|
+|Do you want to enable this app role?|checked|
 
 ## Giving users permissions
 Next, we will assign users to preview created App Roles.
-1. Still on App Registration pane, on overview, click on "Managed application in local directory", to go to the Enterprise Application pane.
+You must have at least two users in your Microsoft Entra ID Tenant, to give one the access of Member, and other the access of Admin.
+1. Still on App Registration pane, on **Overview**, click on "Managed application in local directory", to go to the Enterprise Application pane.
 ![Enterprise Pane](./media/approles1.png)
-1. In the Enterprise Pane, go to **Users and groups**, **+ Add user/group**, select a user and select just APIM.Members App Role. Click on Select, and then Assign.
+1. In the Enterprise Application Pane, in Manage section, go to **Users and groups**, **+ Add user/group**, select a user and select just APIM.Members App Role. Click on Select, and then Assign.
 1. Do the seme for another user, including this time, the APIM.Admins and APIM.Members App Role. The configuration will be something similar to this:
 ![Enterprise Pane](./media/approles2.png)
 In this example, Marcos will have the "Admin" role, and Gabriel will have "Member" role.
 
 ## Configure APIM According App Roles
-In this sample, we will consider that Members can list the sessions, but not list the Speakers. to do so, we will configure 2 operations policies, one for GetSessions operation, and another one for GetSpeakers operation.
+In this sample, we will consider that Members can list the sessions, but not list the Speakers. To do so, we will configure 2 operations policies, one for GetSessions operation, and another one for GetSpeakers operation.
 
 
 1. In Azure Portal, go to API Management, click on instance created.
-1. In the left panel, go to API, click on API imported, GetSessions operation. In Inbound policy, click on **+ Add policy**.
+1. In the left panel, go to API, click on API just imported, GetSessions operation. In Inbound policy, click on **+ Add policy**.
 ![Enterprise Pane](./media/apim3.png)
 1. Select "Validade JWT" Policy.
 
 ![Enterprise Pane](./media/apim4.png)
-1. Fill the values with values of application, described in the table:
+1. Fill the values with values of application, described in the table.
+Note that you will need the values kept on App Registration, **Application (client) ID**, and **Directory (tenant) ID**
 
 |Setting|Value|
 |-------|-----|
