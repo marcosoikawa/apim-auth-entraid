@@ -63,8 +63,6 @@ For this demo, we will use Confere API (https://conferenceapi.azurewebsites.net)
 1. In the Create from OpenAPI specification window, select Full.
 1. Enter the values from the following table.
 1. Click Save
-1. You can set API values during creation or later by going to the Settings tab.
-
 
 ![Topology](./media/apim2.png)
 
@@ -75,8 +73,17 @@ For this demo, we will use Confere API (https://conferenceapi.azurewebsites.net)
 |**Name**|After you enter the OpenAPI specification URL, API Management fills out this field based on the JSON.|
 |**Products**|**Unlimited**|
 |**Gateways**|**Managed**|
+|**Subscription required**|**Unchecked**|
 
 
+After you import, lets uncheck the option of subscription required. 
+
+> In this case, for simplicity of demonstration, we will not use Subscrition feature of APIM, but you can use, on top of Entra ID Authentication and Authorization.
+
+1. Go to the API imported / All Operations / Settings tab.
+1. Uncheck "Subscription required"
+
+![Topology](./media/no-subscription3.png)
 
 ## Register the API App
 
@@ -166,8 +173,9 @@ You must have at least two users in your Microsoft Entra ID Tenant, to give one 
 In this example, Marcos will have the "Admin" role, and Gabriel will have "Member" role.
 
 ## Configure APIM According App Roles
-In this sample, we will consider that Members can list the sessions, but not list the Speakers. To do so, we will configure 2 operations policies, one for GetSessions operation, and another one for GetSpeakers operation.
+In this sample, we will consider that Members can list the sessions, but not list the Speakers. To do so, we will configure 2 operations policies, one for **GetSessions** operation, and another one for **GetSpeakers** operation.
 
+### GetSessions Operation Policy: Validade JWT
 
 1. In Azure Portal, go to API Management, click on instance created.
 1. In the left panel, go to API, click on API just imported, GetSessions operation. In Inbound policy, click on **+ Add policy**.
@@ -175,25 +183,27 @@ In this sample, we will consider that Members can list the sessions, but not lis
 1. Select "Validade JWT" Policy.
 
 ![Enterprise Pane](./media/apim4.png)
-1. Fill the values with values of application, described in the table.
-Note that you will need the values kept on App Registration, **Application (client) ID**, and **Directory (tenant) ID**
+
+4. Fill the values with values of application, described in the table.
+
+>Note that you will need the values kept in Microsoft Entra ID / App Registration: **Application (client) ID**, and **Directory (tenant) ID** values.
 
 |Setting|Value|
 |-------|-----|
 |**Header name**|Authorization|
 |**Failed validation HTTP code**| Leave with 401 - Unauthorized|
 |**Failed validation error message**| Unauthorized due APIM Policy |
-|**Audiences**|api://[your-app-id]|
+|**Audiences**|api://[*your-app-id*] 
+||*[your-app-id]*|
 |**Required claims - Name**|roles|
 |**Required claims - Match**|Any claim|
 |**Required claims - Value**|APIMAuth.Members|
-|**Open ID URLs** |https://login.microsoftonline.com/[your-tenant-id]/v2.0/.well-known/openid-configuration|
+|**Open ID URLs** |https://login.microsoftonline.com/[*your-tenant-id*]/v2.0/.well-known/openid-configuration|
 
-1. Click Save.
+5. Click Save.
 
-> check the values In the Entra ID / App Registration Pane, on the "Endpoints" Icon (right to the "+ New registration" button)
 
-1. Open the policy and add the issuer xml section, below to audiences section
+6. Open the policy and add the issuer xml section, below to audiences section
 
 ```xml
     <issuers>
@@ -203,15 +213,100 @@ Note that you will need the values kept on App Registration, **Application (clie
 Final result will be something smimilar to this:
 ![Enterprise Pane](./media/apim5.png)
 
-
-2. Repeat the process with GetSpeakers, using **APIMAuth.Admins** Role.
+### GetSpeakers Operation Policy: Validade JWT
+Repeat the process with **GetSpeakers**, using **APIMAuth.Admins** Role.
 
 
 ## Run and Test
-For better understand 
+At this point you have all setup with your API to be consumed via Entra ID Authentication and Authorization. You can now call the API with a apropriate Barear token aquired against Microsoft Entra ID, with the users you defined at App Roles.
+
+For demonstration proposes in this case, we will aquire a Barear token via cli and will use this token to call the APIs. Acording to users we defined in Users / App Roles, users will have access to APIs or not.
+
+### Set up Azure CLI
+
+Have Azure CLI installed on your machine. Your can setup folowing this guide: [How to install the Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli).
+
+Execute on cli:
+
+```bash
+az login --use-device-code
+```
+
+Follow the instructions to login with device code with the first user you define in the Microsoft Entra ID / App Roles, with APIMAuth.Members
+
+![Enterprise Pane](./media/run01.png)
 
 
-## Next steps
+Next, execute this command:
+```bash
+az account get-access-token --resource api://*your-app-id*
+```
+
+You should see a message like this, saying that the CLi console do not have a consent of admin to ask a token. The Message also give you the CLi ID.
+
+![Enterprise Pane](./media/run02.png)
+
+To to this consent, go to Microsoft Entra ID / App Registrations / All application tab / apim-auth-api App
+Go to Expose API (same pane of before section), in Authorized client applicaitons, click on +Add a client application and add the CLi ID captured on error message before, selecting the scope previously created
+
+![Enterprise Pane](./media/run03.png)
+
+Now, execute again the commands:
+
+```bash
+az logout
+az login --use-device-code
+```
+And try to get again the token:
+
+```bash
+az account get-access-token --resource api://*your-app-id*
+```
+You now should get the access token:
+
+![Enterprise Pane](./media/run04.png)
+
+If you open https://jwt.ms/ and put the token you will see the claims that Entra ID returned to application, and also will see the Roles that this user was assinged.
+In my case, the user semedo@oikawa.dev.br was assigned just with APIMAuth.Members role.
+
+![Enterprise Pane](./media/run05.png)
+
+### Calling Sesions Endpoint
+
+Now you can call the API using this Barear token. 
+You can see the base endpoint your API in API Management / API / Conference API / Settings / Base URL
+Get the base URL and add the /sessions and /speakers
+
+It will be something like: 
+
+**https://apim-auth-[yourRandom].azure-api.net/sessions**
+
+To call an API with a Barear token, just add a header Authorization with the value "Barear [your token]"
+
+![Enterprise Pane](./media/run07.png)
+
+You shoud get and 200 with all sessions of the API.
+
+### Calling Skeakers Endpoint
+
+Now let's try to call the speakers endpoint:
+
+**https://apim-auth-[yourRandom].azure-api.net/speakers**
+
+![Enterprise Pane](./media/run08.png)
+
+You shoud get a 401 Unauthorized, with the message previously configured "Unauthorized due APIM Policy"
+
+### Calling Skeakers Endpoint with APIMAuth.Admins Role
+
+Now Follow this steps of the section, using now the user you provide with APIMAuth.Admins role. Get the token with the user and call the /speakers endpoint.
+You shoud see a token with roles in the https://jwt.ms/:
+
+![Enterprise Pane](./media/run09.png)
+
+And if you call now the /speakers endpoint with this Barear token, you should see a 200 result.
+
+![Enterprise Pane](./media/run10.png)
 
 
 ## Learn more
