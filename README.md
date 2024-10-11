@@ -310,13 +310,13 @@ And if you call now the /speakers endpoint with this Barear token, you should se
 
 
 ## Learn more
-[API Management](https://azure.microsoft.com/en-us/products/api-management)
+- [API Management](https://azure.microsoft.com/en-us/products/api-management)
 
-[What is Azure API Management?](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts)
+- [What is Azure API Management?](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts)
 
-[Tutorial: Import and publish your first API](https://learn.microsoft.com/en-us/azure/api-management/import-and-publish)
+- [Tutorial: Import and publish your first API](https://learn.microsoft.com/en-us/azure/api-management/import-and-publish)
 
-[API Management - Validate JWT Policy](https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy).
+- [API Management - Validate JWT Policy](https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy).
 
 ## Contributing
 
