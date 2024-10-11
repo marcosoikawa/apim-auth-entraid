@@ -1,7 +1,6 @@
 ---
 ArtifactType: sample
 Language: CLi
-Platform: Windows
 Description: This sample describes how Azure API Management (APIM) can centralized authentication and authorizaton of APIs using Entra ID using APIM Policy (validate-jwt) and App Roles of Entra ID. 
 Tags: Azure, EntraID, API Management
 ---
