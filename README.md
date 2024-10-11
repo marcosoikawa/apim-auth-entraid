@@ -1,7 +1,8 @@
 ---
-ArtifactType: website
-Language: C#
+ArtifactType: sample
+Language: CLi
 Platform: Windows
+Description: This sample describes how Azure API Management (APIM) can centralized authentication and authorizaton of APIs using Entra ID using APIM Policy (validate-jwt) and App Roles of Entra ID. 
 Tags: Azure, EntraID, API Management
 ---
 
@@ -20,7 +21,7 @@ Tags: Azure, EntraID, API Management
 The main objective of this LAB is to demonstrate how Azure API Management (APIM) can centralized authentication and authorizaton of APIs using Entra ID using APIM Policy (validate-jwt) and App Roles of Entra ID. This is very usefull when you have legacy APIs, APIs with no OAuth 2.0 / OIDC or even if you need to centralized management of authentication and authentication in one single pane of glass
 ![Topology](./media/architecture1.png)
 
-# Prerequisites
+## Prerequisites
 
 - An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
 
