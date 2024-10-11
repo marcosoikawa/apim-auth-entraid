@@ -220,7 +220,7 @@ Repeat the process with **GetSpeakers**, using **APIMAuth.Admins** Role.
 ## Run and Test
 At this point you have all setup with your API to be consumed via Entra ID Authentication and Authorization. You can now call the API with a apropriate Barear token aquired against Microsoft Entra ID, with the users you defined at App Roles.
 
-For demonstration proposes in this case, we will aquire a Barear token via cli and will use this token to call the APIs. Acording to users we defined in Users / App Roles, users will have access to APIs or not.
+For demonstration proposes in this case, we will aquire a Bearer token via CLi and will use this token to call the APIs. Acording to users we defined in Users / App Roles, users will have access to APIs or not.
 
 ### Set up Azure CLI
 
@@ -246,7 +246,7 @@ You should see a message like this, saying that the CLi console do not have a co
 
 ![Enterprise Pane](./media/run02.png)
 
-To to this consent, go to Microsoft Entra ID / App Registrations / All application tab / apim-auth-api App
+To to this consent, go to Microsoft Entra ID / App Registrations / All application tab / apim-auth-api App.
 Go to Expose API (same pane of before section), in Authorized client applicaitons, click on +Add a client application and add the CLi ID captured on error message before, selecting the scope previously created
 
 ![Enterprise Pane](./media/run03.png)
@@ -310,6 +310,13 @@ And if you call now the /speakers endpoint with this Barear token, you should se
 
 
 ## Learn more
+[API Management](https://azure.microsoft.com/en-us/products/api-management)
+
+[What is Azure API Management?](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts)
+
+[Tutorial: Import and publish your first API](https://learn.microsoft.com/en-us/azure/api-management/import-and-publish)
+
+[API Management - Validate JWT Policy](https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy).
 
 ## Contributing
 
