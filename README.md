@@ -1,11 +1,11 @@
----
-ArtifactType: sample
-Language: CLi
-Description: This sample describes how Azure API Management (APIM) can centralized authentication and authorizaton of APIs using Entra ID using APIM Policy (validate-jwt) and App Roles of Entra ID. 
-Tags: Azure, EntraID, API Management
----
 
-# API Authentication with API Management (APIM) and Entra ID using APIM Policies 
+# Deprecated
+
+Please visit this repo to the last updated content:
+
+https://github.com/microsoft/apim-auth-entraid-with-approles
+
+## API Authentication with API Management (APIM) and Entra ID using APIM Policies 
 
 ![GitHub](https://img.shields.io/github/license/marcosoikawa/apim-auth-entraid) 
 ![GitHub repo size](https://img.shields.io/github/repo-size/marcosoikawa/apim-auth-entraid) 
